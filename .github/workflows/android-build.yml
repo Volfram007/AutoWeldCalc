@@ -13,61 +13,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Проверка репозитория
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
-      # Установка Python
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+        shell: bash
+
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v2
         with:
-          python-version: '3.10'  # Укажите поддерживаемую версию Python
+          path: .buildozer_global
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-      # Установка Java
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/cache@v2
         with:
-          java-version: '11'  # OpenJDK 11 необходим для Android
-          distribution: 'temurin'
+          path: .buildozer
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
-      # Установка Buildozer и зависимостей
-      - name: Install Buildozer and dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libffi-dev libssl-dev zlib1g-dev \
-              liblzma-dev libgmp-dev g++ unzip git openjdk-11-jdk
-          pip install --upgrade pip
-          pip install buildozer cython
-
-      # Инициализация Buildozer (если файла buildozer.spec нет)
-      # - name: Initialize Buildozer
-        # run: buildozer init
-
-      # Настройка Android SDK и NDK
-      - name: Setup Android SDK and NDK
-        run: |
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O commandlinetools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip commandlinetools.zip -d $HOME/android-sdk/cmdline-tools
-          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;23.1.7779620"
-
-      # Очистка предыдущих сборок
-      # - name: Clean Buildozer Cache
-        # run: buildozer android clean
-
-      # Сборка APK в режиме отладки
-      - name: Build Debug APK
-        run: |
-          touch main.py
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
           command: echo y | buildozer -v android debug
+          buildozer_version: master
 
-      # Сохранение APK как артефакта
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
-          name: app-debug
-          path: bin/*.apk
+          name: package
+          path: ${{ steps.buildozer.outputs.filename }}
