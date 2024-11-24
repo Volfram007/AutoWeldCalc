@@ -40,8 +40,8 @@ jobs:
           pip install buildozer cython
 
       # Инициализация Buildozer (если файла buildozer.spec нет)
-      - name: Initialize Buildozer
-        run: buildozer init
+      # - name: Initialize Buildozer
+        # run: buildozer init
 
       # Настройка Android SDK и NDK
       - name: Setup Android SDK and NDK
