@@ -38,7 +38,7 @@ jobs:
     - name: Install dependencies
       run: |
         # sudo apt update
-        # sudo apt install -y openjdk-11-jdk python3-pip zlib1g-dev unzip wget
+        sudo apt install -y openjdk-11-jdk python3-pip zlib1g-dev unzip wget
         # pip install --upgrade buildozer
         mkdir -p $HOME/.android
         echo "### Accept all SDK licenses" > $HOME/.android/repositories.cfg
