@@ -56,8 +56,8 @@ jobs:
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;23.1.7779620"
 
       # Очистка предыдущих сборок
-      - name: Clean Buildozer Cache
-        run: buildozer android clean
+      # - name: Clean Buildozer Cache
+        # run: buildozer android clean
 
       # Сборка APK в режиме отладки
       - name: Build Debug APK
