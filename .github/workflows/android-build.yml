@@ -63,7 +63,7 @@ jobs:
       - name: Build Debug APK
         run: |
           touch main.py
-          buildozer -v android debug
+          command: echo y | buildozer -v android debug
 
       # Сохранение APK как артефакта
       - name: Upload APK
