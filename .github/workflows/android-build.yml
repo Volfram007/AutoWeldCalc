@@ -37,8 +37,7 @@ jobs:
 
     - name: Install Aidl
       run:
-        pip install Aidl
-
+       ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager "build-tools;29.0.0"
 
     # Сборка APK
     - name: Build APK
