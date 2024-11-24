@@ -19,47 +19,35 @@ jobs:
     # Проверка репозитория
     - name: Checkout repository
       uses: actions/checkout@v4
-
     # Установка Python и зависимостей
     - name: Installing Python and dependencies
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
-        # architecture: x64
-        
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
+        # architecture: x64        
     - name: Install requirements
-      run:
-        pip install -r requirements.txt
-        
-    - name: Install Cython
-      run:
-        pip install Cython
-        
-    - name: Install dependencies
       run: |
-        # sudo apt update
-        sudo apt install -y openjdk-11-jdk python3-pip zlib1g-dev unzip wget
-        # pip install --upgrade buildozer
-        mkdir -p $HOME/.android
-        echo "### Accept all SDK licenses" > $HOME/.android/repositories.cfg
-        
-
-    # Установка Android SDK и принятие лицензий
-    # Установка Android SDK и NDK
-
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt        
+    - name: Install Cython
+      run: 
+        pip install Cython
+    # Установка Android SDK и NDK и принятие лицензий
+    - name: Install Android SDK and NDK
+      uses: actions/setup-android@v2
+      with:
+        android-sdk-version: 'latest'
+        android-ndk-version: 'latest'        
+    - name: Accept Android Licenses
+      run: |
+        yes | sdkmanager --licenses
 
       
     # Сборка APK
     - name: Build APK
       run: |
         buildozer -v android debug
-        ls bin/ # Проверка наличия APK
+        # ls bin/ # Проверка наличия APK
 
     # Сохранение APK как артефакта
     - name: Upload APK
