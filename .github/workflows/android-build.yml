@@ -7,60 +7,66 @@ on:
   #     - main
   workflow_dispatch:
 
-env:
-  PYTHONFORANDROID_PREREQUISITES_INSTALL_INTERACTIVE: 0
-
-name: Android Integration
 jobs:
-  Integration:
-    strategy:
-      matrix:
-        os:
-          - 'ubuntu-latest'
-          - 'macOs-latest'
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-    # Установка Python
-    - name: Setup python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-    # Установка Java
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    # Проверка репозитория
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Setup environment
-      run: |
-        pip install .
-    - run: buildozer --help
-    - run: buildozer init
-    - name: SDK, NDK and p4a download
-      run: |
-        sed -i.bak "s/# android.accept_sdk_license = False/android.accept_sdk_license = True/" buildozer.spec
-        sed -i.bak "s/#p4a.branch = master/p4a.branch = develop/" buildozer.spec
-        buildozer android p4a -- --help
-    # Install OS specific dependencies
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      # Required by some p4a recipes, but not
-      # installed by p4a on Linux.
-      run: sudo apt -y install automake   
-    # Очистка предыдущих сборок
-    # - name: Clean Buildozer Cache
-      # run: buildozer android clean
-    # Сборка APK в режиме отладки
-    - name: Debug Build
-      run: |
-        touch main.py
-        buildozer android debug
-    # Сохранение APK как артефакта
-    - name: Release Build (aab)
-      run: |
-        touch main.py
-        export BUILDOZER_ALLOW_ORG_TEST_DOMAIN=1
-        buildozer android release
+      # Проверка репозитория
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Установка Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'  # Укажите поддерживаемую версию Python
+
+      # Установка Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'  # OpenJDK 11 необходим для Android
+          distribution: 'temurin'
+
+      # Установка Buildozer и зависимостей
+      - name: Install Buildozer and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libffi-dev libssl-dev zlib1g-dev \
+              liblzma-dev libgmp-dev g++ unzip git openjdk-11-jdk
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      # Инициализация Buildozer (если файла buildozer.spec нет)
+      - name: Initialize Buildozer
+        run: buildozer init
+
+      # Настройка Android SDK и NDK
+      - name: Setup Android SDK and NDK
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O commandlinetools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip commandlinetools.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;23.1.7779620"
+
+      # Очистка предыдущих сборок
+      - name: Clean Buildozer Cache
+        run: buildozer android clean
+
+      # Сборка APK в режиме отладки
+      - name: Build Debug APK
+        run: |
+          touch main.py
+          buildozer -v android debug
+
+      # Сохранение APK как артефакта
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug
+          path: bin/*.apk
