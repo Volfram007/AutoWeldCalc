@@ -45,15 +45,23 @@ jobs:
         
 
     # Установка Android SDK и принятие лицензий
-    - name: Setup Android SDK
+ # Установка Android SDK и NDK
+    - name: Setup Android SDK and NDK
       run: |
         export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+        export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk
         mkdir -p $ANDROID_HOME
+        mkdir -p $ANDROID_NDK_HOME
+
+        # Скачиваем и настраиваем cmdline-tools
         wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
-        unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+        unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
         mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+
+        # Принимаем лицензии и устанавливаем необходимые пакеты
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
+
 
     # Сборка APK
     - name: Build APK
