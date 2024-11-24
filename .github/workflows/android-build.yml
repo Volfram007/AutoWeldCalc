@@ -22,11 +22,17 @@ jobs:
 
     # Установка Python и зависимостей
     - name: Installing Python and dependencies
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.x'
         # architecture: x64
-
+        
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
     - name: Install requirements
       run:
         pip install -r requirements.txt
@@ -45,24 +51,16 @@ jobs:
         
 
     # Установка Android SDK и принятие лицензий
- # Установка Android SDK и NDK
-    - name: Setup Android SDK and NDK
+    # Установка Android SDK и NDK
+    - name: SDK, NDK and p4a download
       run: |
-        export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-        export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk
-        mkdir -p $ANDROID_HOME
-        mkdir -p $ANDROID_NDK_HOME
+        sed -i.bak "s/# android.accept_sdk_license = False/android.accept_sdk_license = True/" buildozer.spec
+        sed -i.bak "s/#p4a.branch = master/p4a.branch = develop/" buildozer.spec
+        buildozer android p4a -- --help
 
-        # Скачиваем и настраиваем cmdline-tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
-        unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-        mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-
-        # Принимаем лицензии и устанавливаем необходимые пакеты
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
-
-
+    - name: Install Linux dependencies
+      run: sudo apt -y install automake 
+      
     # Сборка APK
     - name: Build APK
       run: |
