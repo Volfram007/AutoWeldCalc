@@ -32,8 +32,8 @@ jobs:
         distribution: 'temurin'
     - uses: actions/checkout@v4
     - name: Setup environment
-      run: |
-        pip install .
+      # run: |
+        # pip install .
     - run: buildozer --help
     # - run: buildozer init
     - name: SDK, NDK and p4a download
