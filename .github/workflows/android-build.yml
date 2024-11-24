@@ -13,16 +13,20 @@ jobs:
           - 'macOs-latest'
     runs-on: ${{ matrix.os }}
     steps:
+    # Установка Python
     - name: Setup python
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
+    # Установка Java
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-    - uses: actions/checkout@v4
+    # Проверка репозитория
+    - name: Checkout repository
+      uses: actions/checkout@v4
     - name: Setup environment
       run: |
         pip install .
@@ -38,11 +42,16 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       # Required by some p4a recipes, but not
       # installed by p4a on Linux.
-      run: sudo apt -y install automake        
+      run: sudo apt -y install automake   
+    # Очистка предыдущих сборок
+    # - name: Clean Buildozer Cache
+      # run: buildozer android clean
+    # Сборка APK в режиме отладки
     - name: Debug Build
       run: |
         touch main.py
         buildozer android debug
+    # Сохранение APK как артефакта
     - name: Release Build (aab)
       run: |
         touch main.py
