@@ -35,10 +35,6 @@ jobs:
       run:
         pip install Cython
 
-    - name: Install Aidl
-      run:
-       ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager "build-tools;29.0.0"
-
     # Сборка APK
     - name: Build APK
       run: |
