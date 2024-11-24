@@ -34,7 +34,7 @@ jobs:
     - name: Setup environment
       # run: |
         # pip install .
-    - run: buildozer --help
+    # - run: buildozer --help
     # - run: buildozer init
     - name: SDK, NDK and p4a download
       run: |
