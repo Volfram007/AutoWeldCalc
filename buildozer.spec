@@ -1,16 +1,16 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = AutoWeldCalc
 
 # (str) Package name
-package.name = myapp
+package.name = ru.AutoWeldCalc
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
 
 # (str) Source code where the main.py live
-source.dir = .
+source.dir = AutoWeldCalc
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
