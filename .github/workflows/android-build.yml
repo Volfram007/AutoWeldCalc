@@ -30,9 +30,14 @@ jobs:
     - name: Install requirements
       run:
         pip install -r requirements.txt
+        
     - name: Install Cython
       run:
         pip install Cython
+
+    - name: Install Aidl
+      run:
+        pip install Aidl
 
 
     # Сборка APK
