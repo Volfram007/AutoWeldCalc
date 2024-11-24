@@ -34,6 +34,26 @@ jobs:
     - name: Install Cython
       run:
         pip install Cython
+        
+    - name: Install dependencies
+      run: |
+        # sudo apt update
+        # sudo apt install -y openjdk-11-jdk python3-pip zlib1g-dev unzip wget
+        # pip install --upgrade buildozer
+        mkdir -p $HOME/.android
+        echo "### Accept all SDK licenses" > $HOME/.android/repositories.cfg
+        
+
+    # Установка Android SDK и принятие лицензий
+    - name: Setup Android SDK
+      run: |
+        export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+        mkdir -p $ANDROID_HOME
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
+        unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+        mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33"
 
     # Сборка APK
     - name: Build APK
