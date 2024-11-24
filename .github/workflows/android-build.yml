@@ -22,15 +22,17 @@ jobs:
 
     # Установка Python и зависимостей
     - name: Installing Python and dependencies
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v3
       with:
         python-version: '3.10'
         # architecture: x64
 
-    - name: Install dependencies
-      run: |
-          pip install -r requirements.txt
-          pip install --upgrade Cython==0.29.33 virtualenv
+    - name: Install requirements
+      run:
+        pip install -r requirements.txt
+    - name: Install Cython
+      run:
+        pip install Cython
 
 
     # Сборка APK
