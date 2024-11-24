@@ -52,14 +52,8 @@ jobs:
 
     # Установка Android SDK и принятие лицензий
     # Установка Android SDK и NDK
-    - name: SDK, NDK and p4a download
-      run: |
-        sed -i.bak "s/# android.accept_sdk_license = False/android.accept_sdk_license = True/" buildozer.spec
-        sed -i.bak "s/#p4a.branch = master/p4a.branch = develop/" buildozer.spec
-        buildozer android p4a -- --help
 
-    - name: Install Linux dependencies
-      run: sudo apt -y install automake 
+
       
     # Сборка APK
     - name: Build APK
